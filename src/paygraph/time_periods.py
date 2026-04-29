@@ -20,6 +20,7 @@ class TimePeriod:
         rollover_amount: Additional budget from previous period rollover
         spent_amount: Amount spent in this period so far
     """
+
     period_type: str
     start_time: datetime
     end_time: datetime
@@ -117,8 +118,12 @@ class PeriodTracker:
         """Initialize the period tracker."""
         self._periods: dict[str, TimePeriod] = {}
 
-    def get_current_period(self, period_type: str, budget_limit: float,
-                          current_time: datetime | None = None) -> TimePeriod:
+    def get_current_period(
+        self,
+        period_type: str,
+        budget_limit: float,
+        current_time: datetime | None = None,
+    ) -> TimePeriod:
         """Get or create the current period for the given type.
 
         Args:
@@ -147,14 +152,15 @@ class PeriodTracker:
             end_time=end_time,
             budget_limit=budget_limit,
             rollover_amount=0.0,
-            spent_amount=0.0
+            spent_amount=0.0,
         )
 
         self._periods[period_id] = period
         return period
 
-    def is_period_expired(self, period: TimePeriod,
-                         current_time: datetime | None = None) -> bool:
+    def is_period_expired(
+        self, period: TimePeriod, current_time: datetime | None = None
+    ) -> bool:
         """Check if a period has expired.
 
         Args:
@@ -181,8 +187,12 @@ class PeriodTracker:
         """
         return max(0.0, expired_period.remaining_budget)
 
-    def process_period_rollover(self, period_type: str, budget_limit: float,
-                              current_time: datetime | None = None) -> float | None:
+    def process_period_rollover(
+        self,
+        period_type: str,
+        budget_limit: float,
+        current_time: datetime | None = None,
+    ) -> float | None:
         """Process rollover for a period type and return rollover amount.
 
         This method checks if there's an expired period that needs rollover
@@ -200,9 +210,12 @@ class PeriodTracker:
             current_time = datetime.now()
 
         expired_periods = [
-            period for period in self._periods.values()
-            if (period.period_type == period_type and
-                self.is_period_expired(period, current_time))
+            period
+            for period in self._periods.values()
+            if (
+                period.period_type == period_type
+                and self.is_period_expired(period, current_time)
+            )
         ]
 
         if not expired_periods:
@@ -230,8 +243,9 @@ class PeriodTracker:
         """
         period.rollover_amount += rollover_amount
 
-    def cleanup_old_periods(self, current_time: datetime | None = None,
-                           keep_days: int = 30) -> None:
+    def cleanup_old_periods(
+        self, current_time: datetime | None = None, keep_days: int = 30
+    ) -> None:
         """Clean up old period records to prevent memory bloat.
 
         Args:
@@ -244,15 +258,17 @@ class PeriodTracker:
         cutoff_time = current_time - timedelta(days=keep_days)
 
         to_remove = [
-            period_id for period_id, period in self._periods.items()
+            period_id
+            for period_id, period in self._periods.items()
             if period.end_time < cutoff_time
         ]
 
         for period_id in to_remove:
             del self._periods[period_id]
 
-    def _get_period_boundaries(self, period_type: str,
-                              dt: datetime) -> tuple[datetime, datetime]:
+    def _get_period_boundaries(
+        self, period_type: str, dt: datetime
+    ) -> tuple[datetime, datetime]:
         """Get period boundaries for a given type and datetime.
 
         Args:
@@ -276,8 +292,9 @@ class PeriodTracker:
         else:
             raise ValueError(f"Unsupported period type: {period_type}")
 
-    def get_period_summary(self, period_type: str,
-                          current_time: datetime | None = None) -> dict:
+    def get_period_summary(
+        self, period_type: str, current_time: datetime | None = None
+    ) -> dict:
         """Get a summary of the current period state.
 
         Args:
@@ -291,16 +308,19 @@ class PeriodTracker:
             current_time = datetime.now()
 
         current_periods = [
-            period for period in self._periods.values()
-            if (period.period_type == period_type and
-                period.start_time <= current_time < period.end_time)
+            period
+            for period in self._periods.values()
+            if (
+                period.period_type == period_type
+                and period.start_time <= current_time < period.end_time
+            )
         ]
 
         if not current_periods:
             return {
                 "period_type": period_type,
                 "status": "no_active_period",
-                "current_time": current_time.isoformat()
+                "current_time": current_time.isoformat(),
             }
 
         period = current_periods[0]
@@ -316,5 +336,5 @@ class PeriodTracker:
             "effective_budget": period.effective_budget,
             "spent_amount": period.spent_amount,
             "remaining_budget": period.remaining_budget,
-            "current_time": current_time.isoformat()
+            "current_time": current_time.isoformat(),
         }

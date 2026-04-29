@@ -134,10 +134,11 @@ class PolicyEngine:
 
             # Only update cache if period changed
             if self._current_periods.get(period_type) is not period:
-                if (self.policy.enable_rollover and
-                    period_type in self.policy.rollover_periods and
-                    period.rollover_amount == 0.0):
-
+                if (
+                    self.policy.enable_rollover
+                    and period_type in self.policy.rollover_periods
+                    and period.rollover_amount == 0.0
+                ):
                     rollover_amount = self._period_tracker.process_period_rollover(
                         period_type, budget_limit, current_time
                     )
@@ -166,8 +167,10 @@ class PolicyEngine:
 
         # Check if the amount would exceed the effective budget
         if period.spent_amount + amount > period.effective_budget:
-            return (f"{period_type.title()} budget exhausted "
-                   f"(${period.spent_amount:.2f} / ${period.effective_budget:.2f})")
+            return (
+                f"{period_type.title()} budget exhausted "
+                f"(${period.spent_amount:.2f} / ${period.effective_budget:.2f})"
+            )
 
         return None
 
